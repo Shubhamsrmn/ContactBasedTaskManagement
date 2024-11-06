@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import * as Contacts from "expo-contacts";
+import { useNetInfo } from "@react-native-community/netinfo";
 import database, { contactCollection } from "@/db";
 const useContactsWithPermission = () => {
+  const { isConnected } = useNetInfo();
   const [permissionGranted, setPermissionGranted] = useState(false);
   const requestContactsPermission = async () => {
     if (permissionGranted === true) return null;
@@ -54,7 +56,6 @@ const useContactsWithPermission = () => {
       }
     });
 
-    // Remove deleted contacts
     localContacts.forEach((localContact) => {
       const mobileContact = mobileContacts.data.find(
         (mobileContact) =>
@@ -66,8 +67,30 @@ const useContactsWithPermission = () => {
         });
       }
     });
+    if (isConnected) {
+      await postContactsToAPI(localContacts);
+    }
   };
 
+  const postContactsToAPI = async (contacts) => {
+    try {
+      const formattedContacts = contacts.map((contact) => ({
+        id: contact.id,
+        name: contact.name,
+        number: contact.number,
+      }));
+      await fetch("/db", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ contacts: formattedContacts }),
+      });
+      console.log("Contacts successfully posted to the API.");
+    } catch (error) {
+      console.error("Failed to post contacts to the API:", error);
+    }
+  };
   useEffect(() => {
     requestContactsPermission();
   }, []);

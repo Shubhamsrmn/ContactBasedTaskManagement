@@ -1,50 +1,81 @@
-# Welcome to your Expo app 👋
+Contact-Based Task Management App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A local-first contact-based task management app built with React Native and Expo. This app allows users to manage tasks associated with their contacts, with offline capabilities using WatermelonDB.
+Features
 
-## Get started
+    Read Contacts: Fetch contacts from the device's contact book using Expo's Contacts API.
+    Task Management: Create, edit, and delete tasks linked to each contact.
+    Offline Support: Store data locally in WatermelonDB, ensuring persistence and offline availability.
+    Filtering & Searching: Filter contacts by name or task content, and view tasks associated with specific contacts.
 
-1. Install dependencies
+Tech Stack
 
-   ```bash
-   npm install
-   ```
+    React Native with Expo
+    WatermelonDB for local-first data storage and offline persistence
+    Expo Contacts API to access device contacts
+    Expo Navigation for screen navigation
 
-2. Start the app
+Setup
+Prerequisites
 
-   ```bash
-    npx expo start
-   ```
+    Node.js installed (recommended version >= 14)
+    Expo CLI (npm install -g expo-cli)
 
-In the output, you'll find options to open the app in a
+Installation
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+    Clone the Repository:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+git clone https://github.com/Shubhamsrmn/ContactBasedTaskManagement.git
+cd contact-task-manager
 
-## Get a fresh project
+Install Dependencies:
 
-When you're ready, run:
+    npm install
 
-```bash
-npm run reset-project
-```
+    Configure WatermelonDB: Follow the setup instructions for WatermelonDB here if additional setup is required based on your environment.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+    Permissions: Ensure your app requests permissions to access contacts. This will be handled within the app, but testing on a physical device is recommended for Contacts API.
 
-## Learn more
+Running the App
 
-To learn more about developing your project with Expo, look at the following resources:
+To run the app on Android:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+npx expo run:android
 
-## Join the community
+To run the app on iOS:
 
-Join our community of developers creating universal apps.
+npx expo run:ios
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+    Note: For iOS testing, a macOS environment with Xcode is required.
+
+Usage
+
+    Home Screen: Displays a list of contacts fetched from the device’s contact book and stored locally in WatermelonDB. A search bar is available for filtering contacts by name or task content.
+    Contact Details Screen: Shows contact details and a list of tasks linked to the selected contact. Users can create, edit, and delete tasks here.
+    Task List Screen: Displays all tasks associated with contacts and allows filtering tasks by specific contacts.
+
+Key Components and Pages
+
+    app/(tabs)/index.tsx: Home screen with a list of contacts.
+    app/contactDetails.tsx: Displays contact details and manages tasks.
+    app/(tabs)/TasksPage.tsx: Displays a list of all tasks across contacts.
+    components/homepage/ContactItem.tsx: Renders individual contact items.
+    hooks/useContactsWithPermission.ts: Manages contact permissions and fetching.
+    model/Contacts.ts and model/Tasks.ts: WatermelonDB models for local data storage.
+
+Technical Overview
+
+    Expo Contacts API: Fetches contacts from the device and handles contact permissions.
+    WatermelonDB: Provides local-first, offline data handling for contacts and tasks.
+    Expo Navigation: Manages navigation between screens.
+    TypeScript: Ensures type safety across the app.
+
+Error Handling
+
+    Permissions for accessing contacts are handled in useContactsWithPermission.ts. If permissions are denied, the app will prompt the user to enable access.
+
+Best Practices
+
+    Uses functional components and React hooks for managing state.
+    Modularized code structure for ease of maintenance.
+    Efficient data handling optimized for large lists of contacts.
