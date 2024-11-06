@@ -1,24 +1,48 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import React, { useState } from "react";
-import PrimaryButton from "../utils/PrimaryButton";
+import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import database, { taskCollection } from "@/db";
+import PrimaryButton from "../utils/PrimaryButton";
+import database, { contactCollection, taskCollection } from "@/db";
 
 const TaskInputContainer = () => {
   const params = useLocalSearchParams();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [taskId, setTaskId] = useState(null);
+  useEffect(() => {
+    if (params.name && params.description && params.id) {
+      setName(params.name);
+      setDescription(params.description);
+      setTaskId(params.id);
+    }
+  }, []);
   const createTaskHandler = async () => {
     try {
+      if (taskId !== null) {
+        await database.write(async () => {
+          const currentTask = await taskCollection.find(taskId);
+          await currentTask.update((updatedTask) => {
+            updatedTask.name = name;
+            updatedTask.description = description;
+          });
+        });
+        router.replace("/");
+        return;
+      }
+      const contact = await contactCollection.find(params.contactId);
       await database.write(async () => {
-        await taskCollection.create((task) => {
-          task.name = name;
-          task.description = description;
-          task.contact_id = params.contactId;
+        const task = await taskCollection.create((newTask) => {
+          newTask.name = name;
+          newTask.description = description;
+        });
+        await task.update((updatedTask) => {
+          updatedTask.contact.set(contact);
         });
       });
-      router.back();
-    } catch (error) {}
+      router.replace("/");
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <View>
