@@ -1,7 +1,3 @@
-export interface Contacts {
-  contacts: Contact[];
-}
-
 export interface Contact {
   id: string;
   name: string;

@@ -1,76 +1,32 @@
 import { Text, View } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import { FlatList } from "react-native-gesture-handler";
-import { router } from "expo-router";
 import TaskItem from "./TaskItem";
-import useListData from "@/hooks/useListData";
-import PrimaryButton from "../utils/PrimaryButton";
-import SearchContainer from "../homepage/SearchContainer";
-import Spinner from "../utils/Spinner";
+import Task from "@/model/Tasks";
+import { withObservables } from "@nozbe/watermelondb/react";
+import { taskCollection } from "@/db";
+import { Q } from "@nozbe/watermelondb";
 type props = {
-  type: "userList" | "globalList";
-  contactId?: any;
+  tasks: Task[];
 };
-const TaskList: React.FC<props> = ({ type, contactId }) => {
-  const [search, setSearch] = useState("");
-  const { listData, loading } = useListData("tasks");
-  const { listData: contactData } = useListData("contacts");
-  const filteredContacts = contactData.filter(
-    (contact) =>
-      contact.name.toLowerCase().includes(search.toLowerCase()) ||
-      contact.number.includes(search.toLowerCase())
-  );
-  const contactIds = new Set(filteredContacts.map((contact) => contact.id));
-  let filteredList = listData;
-  if (type === "userList") {
-    filteredList = filteredList.filter(
-      (listData) => listData.contact_id === contactId
-    );
-  }
-  if (type === "globalList") {
-    filteredList = filteredList.filter((task) =>
-      contactIds.has(task.contact_id)
-    );
-  }
-  if (loading) return <Spinner />;
-
+const TaskList: React.FC<props> = ({ tasks }) => {
   return (
     <View>
-      {type === "userList" && (
-        <PrimaryButton
-          btnTitle="Create Task"
-          handleFun={() => {
-            router.push(`/tasksInput?contactId=${contactId}`);
-          }}
-        />
-      )}
-      {type === "userList" && (
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: 24,
-            fontWeight: 600,
-            marginVertical: 16,
-          }}
-        >
-          User Task List
-        </Text>
-      )}
-      {type === "globalList" && (
-        <SearchContainer search={search} setSearch={setSearch} />
-      )}
-
-      {filteredList.length === 0 && (
+      {tasks.length === 0 && (
         <Text style={{ textAlign: "center" }}>No Tasks available now.</Text>
       )}
 
       <FlatList
-        data={filteredList}
+        data={tasks}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <TaskItem type={type} item={item} />}
+        renderItem={({ item }) => <TaskItem task={item} />}
       />
     </View>
   );
 };
-
-export default TaskList;
+const enhance = withObservables(["contactId"], ({ contactId }) => ({
+  tasks: contactId
+    ? taskCollection.query(Q.where("contact_id", contactId))
+    : taskCollection.query(),
+}));
+export default enhance(TaskList);

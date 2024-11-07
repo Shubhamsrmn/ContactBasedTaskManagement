@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import React from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import TaskList from "@/components/taskspage/TaskList";
+import PrimaryButton from "@/components/utils/PrimaryButton";
 
 const contactDetails = () => {
   const params = useLocalSearchParams();
@@ -17,14 +18,31 @@ const contactDetails = () => {
         />
       </View>
 
-      <TaskList type="userList" contactId={params.id} />
+      <PrimaryButton
+        btnTitle="Create Task"
+        handleFun={() => {
+          router.push(`/tasksInput?contactId=${params.id}`);
+        }}
+      />
+
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 24,
+          fontWeight: 600,
+          marginVertical: 16,
+        }}
+      >
+        User Task List
+      </Text>
+
+      <TaskList contactId={params.id} />
     </View>
   );
 };
 
 export default contactDetails;
 
-const styles = StyleSheet.create({});
 type prop = {
   title: string;
   value: string;

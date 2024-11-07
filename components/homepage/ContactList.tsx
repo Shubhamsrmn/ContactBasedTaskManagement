@@ -1,47 +1,33 @@
 import { View, FlatList } from "react-native";
-import React, { useState } from "react";
+import React from "react";
+import { withObservables } from "@nozbe/watermelondb/react";
 import ContactItem from "./ContactItem";
-import useListData from "@/hooks/useListData";
-import Spinner from "../utils/Spinner";
-import SearchContainer from "./SearchContainer";
-
-const ContactList = () => {
-  const [search, setSearch] = useState("");
-  const { listData: contactData, loading } = useListData("contacts");
-  const { listData: taskData } = useListData("tasks");
-  if (loading) return <Spinner />;
-  const filteredContacts = contactData.filter(
-    (contact) =>
-      contact.name.toLowerCase().includes(search.toLowerCase()) ||
-      contact.number.includes(search.toLowerCase())
-  );
-  const filteredTasks = taskData.filter(
-    (task) =>
-      task.name.toLowerCase().includes(search.toLowerCase()) ||
-      task.description.toLowerCase().includes(search.toLowerCase())
-  );
-  const taskContactIds = new Set(filteredTasks.map((task) => task.contact_id));
-  const filteredContactData = contactData.filter((contact) =>
-    taskContactIds.has(contact.id)
-  );
-  const combinedData = [
-    ...filteredContacts.filter((contact) => !taskContactIds.has(contact.id)),
-    ...filteredContactData,
-  ];
-  const uniqueContacts = Array.from(
-    new Map(combinedData.map((contact) => [contact.id, contact])).values()
-  );
-
+import { contactCollection } from "@/db";
+import Contact from "@/model/Contacts";
+import { Q } from "@nozbe/watermelondb";
+type props = {
+  contacts: Contact[];
+};
+const ContactList: React.FC<props> = ({ contacts }) => {
   return (
     <View>
-      <SearchContainer search={search} setSearch={setSearch} />
       <FlatList
-        data={uniqueContacts}
+        data={contacts}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ContactItem item={item} />}
+        renderItem={({ item }) => <ContactItem contact={item} />}
       />
     </View>
   );
 };
+const enhance = withObservables(["search"], ({ search }) => ({
+  contacts: search
+    ? contactCollection.query(
+        Q.or(
+          Q.where("name", Q.like(`%${search}%`)),
+          Q.where("number", Q.like(`%${search}%`))
+        )
+      )
+    : contactCollection.query(),
+}));
 
-export default ContactList;
+export default enhance(ContactList);

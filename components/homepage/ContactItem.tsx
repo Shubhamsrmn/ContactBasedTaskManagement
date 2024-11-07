@@ -1,12 +1,14 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import React from "react";
-import { Contact } from "@/tsModels/contacts";
+
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
+import Contact from "@/model/Contacts";
+import { withObservables } from "@nozbe/watermelondb/react";
 type props = {
-  item: Contact;
+  contact: Contact;
 };
-const ContactItem: React.FC<props> = ({ item }) => {
+const ContactItem: React.FC<props> = ({ contact }) => {
   return (
     <Pressable
       style={{
@@ -22,9 +24,9 @@ const ContactItem: React.FC<props> = ({ item }) => {
         router.replace({
           pathname: "/contactDetails",
           params: {
-            id: item.id,
-            name: item.name,
-            number: item.number,
+            id: contact.id,
+            name: contact.name,
+            number: contact.number,
           },
         })
       }
@@ -36,15 +38,19 @@ const ContactItem: React.FC<props> = ({ item }) => {
         }}
       >
         <AntDesign name="contacts" size={24} color="#FF9800" />
-        <Text style={{ ...styles.text, color: "#333333" }}>{item.name}</Text>
+        <Text style={{ ...styles.text, color: "#333333" }}>{contact.name}</Text>
       </View>
 
-      <Text style={{ ...styles.text, color: "#666666" }}>{item.number}</Text>
+      <Text style={{ ...styles.text, color: "#666666" }}>{contact.number}</Text>
     </Pressable>
   );
 };
+const enhance = withObservables(["contact"], ({ contact }) => ({
+  contact,
+}));
 
-export default ContactItem;
+export default enhance(ContactItem);
+
 export const styles = StyleSheet.create({
   mainItemContainer: {
     borderWidth: 1,

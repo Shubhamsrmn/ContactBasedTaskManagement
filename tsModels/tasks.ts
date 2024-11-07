@@ -1,7 +1,3 @@
-export interface Tasks {
-  contacts: Task[];
-}
-
 export interface Task {
   id: string;
   contact_id: string;

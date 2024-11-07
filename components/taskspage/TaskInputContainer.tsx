@@ -26,7 +26,7 @@ const TaskInputContainer = () => {
             updatedTask.description = description;
           });
         });
-        router.replace("/");
+        router.back();
         return;
       }
       const contact = await contactCollection.find(params.contactId);
@@ -39,7 +39,7 @@ const TaskInputContainer = () => {
           updatedTask.contact.set(contact);
         });
       });
-      router.replace("/");
+      router.back();
     } catch (error) {
       console.log(error);
     }

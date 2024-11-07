@@ -1,5 +1,5 @@
 import { Model } from "@nozbe/watermelondb";
-import { text, relation } from "@nozbe/watermelondb/decorators";
+import { text, relation, readonly, date } from "@nozbe/watermelondb/decorators";
 
 export default class Task extends Model {
   static table = "tasks";
@@ -9,5 +9,7 @@ export default class Task extends Model {
 
   @text("name") name;
   @text("description") description;
+  @readonly @date("created_at") createdAt;
+  @readonly @date("updated_at") updatedAt;
   @relation("contact", "contact_id", "contacts") contact;
 }
